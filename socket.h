@@ -83,10 +83,11 @@ class Socket {
 
         void closeSocket(SOCKET s) {
             if (closesocket(s) == SOCKET_ERROR) {
-                std::cerr << "Task failed successfully with: " << WSAGetLastError() << std::endl;
+                std::cerr << "Closing connection failed with: " << WSAGetLastError() << std::endl;
                 WSACleanup();
                 exit(1);
             }
+            WSACleanup();
         }
 
         void getAddrInfo(PCSTR pNodeName, PCSTR pServiceName, const ADDRINFOA *pHints, ADDRINFOA **ppResult) {
@@ -95,7 +96,6 @@ class Socket {
                 WSACleanup();
                 exit(1);
             }
-            
         }
 
         void shutDown(SOCKET s, int how) {

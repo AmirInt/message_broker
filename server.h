@@ -1,5 +1,3 @@
-#include <iostream>
-#include <winsock2.h>
 #include "socket.h"
 
 class Server {
@@ -9,6 +7,12 @@ class Server {
         int port;
         struct sockaddr_in addr;
         int addrlen;
+        
+        void start() {
+            s = socket.getSocket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+            socket.getBinded(s, (struct sockaddr *) &addr, addrlen);
+            socket.startListening(s, SOMAXCONN);
+        }
 
     public:
         Server() {
@@ -18,24 +22,29 @@ class Server {
             addr.sin_family = AF_INET;
             addr.sin_addr.s_addr = INADDR_ANY;
             addr.sin_port = htons(port);
+
+            start();
         }
 
-        void start() {
-            s = socket.getSocket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-            
-            socket.getBinded(s, (struct sockaddr *) &addr, addrlen);
+        void welcomeClient(SOCKET *newClient) {
+            *newClient = socket.acceptClient(s, (struct sockaddr *) &addr, &addrlen);
+        }
 
-            socket.startListening(s, SOMAXCONN);
+        void sendMsg(SOCKET client, const char *buf, int size) {
+            int bytesSent = socket.sendMessage(client, buf, size, 0);
+            std::cout << "Server sent: " << buf << " " << bytesSent << std::endl;
+        }
 
-            SOCKET newS;
-            int newAddrlen;
-            SOCKET newClient = socket.acceptClient(s, (struct sockaddr *) &addr, &newAddrlen);
+        void recvMsg(SOCKET client, char *buf, int size) {
+            int bytesRead = socket.recvMessage(client, buf, size, 0);
+            buf[size] = '\0';
+        }
 
+        void close() {
             socket.closeSocket(s);
+        }
 
-            char buf[11];
-            int bytesRead = socket.recvMessage(newClient, buf, 10, 0);
-            std::cout << "Server read: " << buf << " " << bytesRead << std::endl;
-            socket.closeSocket(newClient);
+        void close(SOCKET client) {
+            socket.closeSocket(client);
         }
 };
