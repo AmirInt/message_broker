@@ -32,7 +32,6 @@ class Server {
 
         void sendMsg(SOCKET client, const char *buf, int size) {
             int bytesSent = socket.sendMessage(client, buf, size, 0);
-            std::cout << "Server sent: " << buf << " " << bytesSent << std::endl;
         }
 
         void recvMsg(SOCKET client, char *buf, int size) {
