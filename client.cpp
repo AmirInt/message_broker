@@ -5,19 +5,7 @@
 #include <winsock2.h>
 #include <windows.h>
 #include "client.h"
-
-#define SUB 0
-#define PUB 1
-#define SUB_ARGS 3
-#define PUB_ARGS 4
-
-#define SUB_SIGNAL "0000000231"
-#define PUB_SIGNAL "0000000014"
-
-#define SUCCESS "0000002512"
-
-#define DEFAULT_SIZE 10
-#define BUFFER_SIZE 2048
+#include "constants.h"
 
 using namespace std;
 
@@ -31,9 +19,9 @@ void throwUsageError() {
     exit(1);
 }
 
-void subscribe(int topicIndex, char *argv[]) {
+void subscribe(string host, string port, int topicIndex, char *argv[]) {
     // Creating a client and sending a subscribe signal:
-    Client client;
+    Client client(&host[0], &port[0]);
     string msg = SUB_SIGNAL;
     client.sendMsg(&msg[0], DEFAULT_SIZE);
 
@@ -71,16 +59,16 @@ void subscribe(int topicIndex, char *argv[]) {
     client.close();
 }
 
-int sendRequest(int action, int argc, char *argv[]) {
+int sendRequest(string host, string port, int action, int argc, char *argv[]) {
     
     if (action == PUB) {
         // Creating a client and sending publish request:
-        Client client;
+        Client client(&host[0], &port[0]);
         string msg = PUB_SIGNAL;
         client.sendMsg(&msg[0], DEFAULT_SIZE);
 
         // Sending the topic of the message:
-        msg = string(argv[2]);
+        msg = string(argv[SP_INDEX + 1]);
         string msgSize = to_string(msg.size());
         string spaces = "          ";
         msgSize = msgSize.append(spaces, 0, DEFAULT_SIZE - msgSize.size());
@@ -88,8 +76,8 @@ int sendRequest(int action, int argc, char *argv[]) {
         client.sendMsg(&msg[0], msg.size());
 
         // Sending the message itself:
-        msg = string(argv[3]);
-        for (int i = 4; i < argc; ++i) {
+        msg = string(argv[SP_INDEX + 2]);
+        for (int i = SP_INDEX + 3; i < argc; ++i) {
             msg = msg.append(string(argv[i]));
         }
         
@@ -109,8 +97,8 @@ int sendRequest(int action, int argc, char *argv[]) {
         }
     } else {
         vector<thread> threads;
-        for (int i = 2; i < argc; ++i) {
-            threads.push_back(thread(subscribe, i, argv));
+        for (int i = SP_INDEX + 1; i < argc; ++i) {
+            threads.push_back(thread(subscribe, host, port, i, argv));
         }
         auto current = threads.begin();
         while (current != threads.end()) {
@@ -128,8 +116,9 @@ int main(int argc, char *argv[]) {
 
     if (argc < 2)
         throwUsageError();
-
-    string inputCommand = string(argv[1]);
+    string host = string(argv[HOST_INDEX]);
+    string port = string(argv[PORT_INDEX]);
+    string inputCommand = string(argv[SP_INDEX]);
 
     if (inputCommand.compare("subscribe") == 0)
         action = SUB;
@@ -144,7 +133,7 @@ int main(int argc, char *argv[]) {
         || action == SUB && argc < SUB_ARGS)
         throwUsageError();
     
-    if (sendRequest(action, argc, argv) == 0) {
+    if (sendRequest(host, port, action, argc, argv) == 0) {
         status = true;
         cout << "Your message got published!" << endl;
     }

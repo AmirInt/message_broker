@@ -5,7 +5,6 @@ class Client {
     private:
         Socket socket;
         SOCKET s;
-        std::string port;
         struct addrinfo *result = NULL, hints;
 
         void start() {
@@ -14,13 +13,12 @@ class Client {
         }
 
     public:
-        Client() {
-            port = "9999";
+        Client(char *host, char *port) {
             ZeroMemory(&hints, sizeof(hints));
             hints.ai_family = AF_UNSPEC;
             hints.ai_socktype = SOCK_STREAM;
             hints.ai_protocol = IPPROTO_TCP;
-            socket.getAddrInfo("127.0.0.1", &port[0], &hints, &result);
+            socket.getAddrInfo(host, port, &hints, &result);
             start();
         }
 
