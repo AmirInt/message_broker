@@ -1,4 +1,8 @@
+#include <string>
 #include "socket.h"
+#include "constants.h"
+
+using namespace std;
 
 class Server {
     private:
@@ -30,13 +34,21 @@ class Server {
             *newClient = socket.acceptClient(s, (struct sockaddr *) &addr, &addrlen);
         }
 
-        void sendMsg(SOCKET client, const char *buf, int size) {
-            int bytesSent = socket.sendMessage(client, buf, size, 0);
+        void sendMsg(SOCKET client, const char *buf) {
+            string spaces = "          ";
+            string msg = string(buf); 
+            string msgSize = to_string(msg.size());
+            msgSize = msgSize.append(spaces, 0, DEFAULT_SIZE - msgSize.size());
+            int bytesSent = socket.sendMessage(client, &msgSize[0], DEFAULT_SIZE, 0);
+            bytesSent = socket.sendMessage(client, buf, msg.size(), 0);
         }
 
-        void recvMsg(SOCKET client, char *buf, int size) {
-            int bytesRead = socket.recvMessage(client, buf, size, 0);
-            buf[size] = '\0';
+        void recvMsg(SOCKET client, char *buf) {
+            int bytesRead = socket.recvMessage(client, buf, DEFAULT_SIZE, 0);
+            buf[bytesRead] = '\0';
+            int msgSize = atoi(buf);
+            bytesRead = socket.recvMessage(client, buf, msgSize, 0);
+            buf[bytesRead] = '\0';
         }
 
         void close() {

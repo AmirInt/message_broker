@@ -20,60 +20,68 @@ void throwUsageError() {
 }
 
 void subscribe(string host, string port, int topicIndex, char *argv[]) {
+
+    string msg, msgSize, spaces = "          ";
+    char buf[BUFFER_SIZE];
+    int messagesNumber, messageSize;
+
     // Creating a client and sending a subscribe signal:
     Client client(&host[0], &port[0]);
-    string msg = SUB_SIGNAL;
-    client.sendMsg(&msg[0], DEFAULT_SIZE);
+    client.sendMsg(SUB_SIGNAL);
 
     // Sending the topic of the message:
-    msg = string(argv[topicIndex]);
-    string msgSize = to_string(msg.size());
-    string spaces = "          ";
-    msgSize = msgSize.append(spaces, 0, DEFAULT_SIZE - msgSize.size());
-    client.sendMsg(&msgSize[0], DEFAULT_SIZE);
-    client.sendMsg(&msg[0], msg.size());
+    client.sendMsg(argv[topicIndex]);
+
+    // Receiving the server's response:
+    client.recvMsg(buf);
+    outputLock.lock();
+    if (string(buf).compare(SUCCESS) == 0)
+        cout << endl << "Subscribed successfully on '" << argv[topicIndex] << "'" << endl;
 
     // Receiving the number of messages from the server:
-    char buf[BUFFER_SIZE];
-    client.recvMsg(buf, DEFAULT_SIZE);
-
-    int messagesNumber = stoi(string(buf));
-    
-    outputLock.lock();
-
+    client.recvMsg(buf);
+    messagesNumber = atoi(buf);
     cout << endl;
     if (messagesNumber == 0)
         cout << "\tYou have no messages on topic '" << argv[topicIndex] << "':" << endl;
     else {
         cout << "\tMessages on topic '" << argv[topicIndex] << "':" << endl;
         for (int i = 0; i < messagesNumber; ++i) {
-            client.recvMsg(buf, DEFAULT_SIZE);
-            int messageSize = stoi(string(buf));
-            client.recvMsg(buf, messageSize);
+            client.recvMsg(buf);
             cout << "\t\t" << i << ". " << buf << endl;
         }
     }
-
     outputLock.unlock();
+
+    // Waiting for new messages from the server:
+    while (true) {
+        client.recvMsg(buf);
+        if (string(buf).compare(MESSAGE) == 0) {
+            client.recvMsg(buf);
+            outputLock.lock();
+            cout << endl << "New message on topic '" << argv[topicIndex] << "'" << endl;
+            cout << "\t" << buf << endl << endl;
+            outputLock.unlock();
+        }
+        else if (string(buf).compare(PING_MSG) == 0) {
+
+        }
+    }
 
     client.close();
 }
 
-int sendRequest(string host, string port, int action, int argc, char *argv[]) {
+void sendRequest(string host, string port, int action, int argc, char *argv[]) {
     
+    string msg;
+
     if (action == PUB) {
         // Creating a client and sending publish request:
         Client client(&host[0], &port[0]);
-        string msg = PUB_SIGNAL;
-        client.sendMsg(&msg[0], DEFAULT_SIZE);
+        client.sendMsg(PUB_SIGNAL);
 
         // Sending the topic of the message:
-        msg = string(argv[SP_INDEX + 1]);
-        string msgSize = to_string(msg.size());
-        string spaces = "          ";
-        msgSize = msgSize.append(spaces, 0, DEFAULT_SIZE - msgSize.size());
-        client.sendMsg(&msgSize[0], DEFAULT_SIZE);
-        client.sendMsg(&msg[0], msg.size());
+        client.sendMsg(argv[SP_INDEX + 1]);
 
         // Sending the message itself:
         msg = string(argv[SP_INDEX + 2]);
@@ -81,19 +89,15 @@ int sendRequest(string host, string port, int action, int argc, char *argv[]) {
             msg = msg.append(string(argv[i]));
         }
         
-        msgSize = to_string(msg.size());
-        spaces = "          ";
-        msgSize = msgSize.append(spaces, 0, DEFAULT_SIZE - msgSize.size());
-        client.sendMsg(&msgSize[0], DEFAULT_SIZE);
-        client.sendMsg(&msg[0], msg.size());
+        client.sendMsg(&msg[0]);
 
         // Receiving the status message from the server:
         char buf[2048];
-        client.recvMsg(buf, DEFAULT_SIZE);
+        client.recvMsg(buf);
         msg = string(buf);
         if (msg.compare(SUCCESS) == 0) {
+            cout << "Your message got published!" << endl;
             client.close();
-            return 0;
         }
     } else {
         vector<thread> threads;
@@ -106,8 +110,6 @@ int sendRequest(string host, string port, int action, int argc, char *argv[]) {
             ++current;
         }
     }
-
-    return 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -133,10 +135,7 @@ int main(int argc, char *argv[]) {
         || action == SUB && argc < SUB_ARGS)
         throwUsageError();
     
-    if (sendRequest(host, port, action, argc, argv) == 0) {
-        status = true;
-        cout << "Your message got published!" << endl;
-    }
-
+    sendRequest(host, port, action, argc, argv);
+    
     return 0;
 }

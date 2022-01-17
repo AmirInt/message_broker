@@ -1,5 +1,8 @@
 #include <string>
 #include "socket.h"
+#include "constants.h"
+
+using namespace std;
 
 class Client {
     private:
@@ -22,13 +25,21 @@ class Client {
             start();
         }
 
-        void sendMsg(const char *buf, int size) {
-            int bytesSent = socket.sendMessage(s, buf, size, 0);
+        void sendMsg(const char *buf) {
+            string spaces = "          ";
+            string msg = string(buf); 
+            string msgSize = to_string(msg.size());
+            msgSize = msgSize.append(spaces, 0, DEFAULT_SIZE - msgSize.size());
+            int bytesSent = socket.sendMessage(s, &msgSize[0], DEFAULT_SIZE, 0);
+            bytesSent = socket.sendMessage(s, buf, msg.size(), 0);
         }
 
-        void recvMsg(char *buf, int size) {
-            int bytesRead = socket.recvMessage(s, buf, size, 0);
-            buf[size] = '\0';
+        void recvMsg(char *buf) {
+            int bytesRead = socket.recvMessage(s, buf, DEFAULT_SIZE, 0);
+            buf[bytesRead] = '\0';
+            int msgSize = atoi(buf);
+            bytesRead = socket.recvMessage(s, buf, msgSize, 0);
+            buf[bytesRead] = '\0';
         }
 
         void close() {

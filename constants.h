@@ -7,6 +7,7 @@
 #define PUB_SIGNAL "0000000014"
 
 #define SUCCESS "0000002512"
+#define NOT_FOUND "0000000404"
 
 #define DEFAULT_SIZE 10
 #define BUFFER_SIZE 2048
@@ -14,3 +15,6 @@
 #define SP_INDEX 3
 #define HOST_INDEX 1
 #define PORT_INDEX 2
+
+#define PING_MSG "0000432350"
+#define MESSAGE "0000000098"
