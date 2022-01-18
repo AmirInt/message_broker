@@ -56,7 +56,7 @@ class Socket {
 
         void getConnected(SOCKET s, const sockaddr *name, int namelen) {
             if (connect(s, name, namelen) == SOCKET_ERROR) {
-                std::cerr << "Connecting failed with: " << WSAGetLastError() << std::endl;
+                std::cerr << "Could not connect to the server: " << WSAGetLastError() << std::endl;
                 exit(1);
             }
         }
@@ -65,18 +65,21 @@ class Socket {
             int sentBytesLen = send(s, buf, len, flags);
             if (sentBytesLen == SOCKET_ERROR) {
                 std::cerr << "Sending failed with: " << WSAGetLastError() << std::endl;
-                exit(1);
+                return 1;
             }
             return sentBytesLen;
         }
 
         int recvMessage(SOCKET s, char *buf, int len, int flags) {
             int recvedBytesLen = recv(s, buf, len, flags);
+            int errorNo = WSAGetLastError();
+            if (errorNo == WSAEWOULDBLOCK || errorNo == WSAECONNRESET)
+                return errorNo;
             if (recvedBytesLen == SOCKET_ERROR) {
                 std::cerr << "Reading failed with: " << WSAGetLastError() << std::endl;
                 closesocket(s);
                 WSACleanup();
-                exit(1);
+                return 1;
             }
             return recvedBytesLen;
         }
@@ -98,12 +101,13 @@ class Socket {
             }
         }
 
-        void shutDown(SOCKET s, int how) {
-            if (shutdown(s, how) == SOCKET_ERROR) {
-                std::cerr << "Shutting down failed with: " << WSAGetLastError() << std::endl;
+        int switchMode(SOCKET s, u_long *mode) {
+            if (ioctlsocket(s, FIONBIO, mode) == SOCKET_ERROR) {
+                std::cerr << "Switching to new mode failed with: " << WSAGetLastError() << std::endl;
                 closesocket(s);
                 WSACleanup();
-                exit(1);
+                return 1;
             }
+            return 0;
         }
 };

@@ -17,4 +17,5 @@
 #define PORT_INDEX 2
 
 #define PING_MSG "0000432350"
+#define PONG_MSG "0000432970"
 #define MESSAGE "0000000098"

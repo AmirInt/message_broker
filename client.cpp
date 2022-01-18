@@ -23,7 +23,7 @@ void subscribe(string host, string port, int topicIndex, char *argv[]) {
 
     string msg, msgSize, spaces = "          ";
     char buf[BUFFER_SIZE];
-    int messagesNumber, messageSize;
+    int messagesNumber, messageSize, result;
 
     // Creating a client and sending a subscribe signal:
     Client client(&host[0], &port[0]);
@@ -55,7 +55,9 @@ void subscribe(string host, string port, int topicIndex, char *argv[]) {
 
     // Waiting for new messages from the server:
     while (true) {
-        client.recvMsg(buf);
+        result = client.recvMsg(buf);
+        if (result == 1)
+            break;
         if (string(buf).compare(MESSAGE) == 0) {
             client.recvMsg(buf);
             outputLock.lock();
@@ -64,7 +66,7 @@ void subscribe(string host, string port, int topicIndex, char *argv[]) {
             outputLock.unlock();
         }
         else if (string(buf).compare(PING_MSG) == 0) {
-
+            client.pong();
         }
     }
 

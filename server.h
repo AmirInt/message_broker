@@ -34,21 +34,47 @@ class Server {
             *newClient = socket.acceptClient(s, (struct sockaddr *) &addr, &addrlen);
         }
 
-        void sendMsg(SOCKET client, const char *buf) {
+        int sendMsg(SOCKET client, const char *buf) {
             string spaces = "          ";
             string msg = string(buf); 
             string msgSize = to_string(msg.size());
             msgSize = msgSize.append(spaces, 0, DEFAULT_SIZE - msgSize.size());
             int bytesSent = socket.sendMessage(client, &msgSize[0], DEFAULT_SIZE, 0);
             bytesSent = socket.sendMessage(client, buf, msg.size(), 0);
+            return bytesSent;
         }
 
-        void recvMsg(SOCKET client, char *buf) {
+        int recvMsg(SOCKET client, char *buf) {
             int bytesRead = socket.recvMessage(client, buf, DEFAULT_SIZE, 0);
             buf[bytesRead] = '\0';
             int msgSize = atoi(buf);
             bytesRead = socket.recvMessage(client, buf, msgSize, 0);
             buf[bytesRead] = '\0';
+            return bytesRead;
+        }
+
+        int pingClient(SOCKET client) {
+            return sendMsg(client, PING_MSG);
+        }
+
+        int getPong(SOCKET client) {
+            u_long mode = 1;
+            int response = 1, readBytes = 0;
+            char buf[BUFFER_SIZE];
+            if (socket.switchMode(client, &mode) == 1)
+                return 1;
+            buf[0] = '\0';
+            readBytes = socket.recvMessage(client, buf, DEFAULT_SIZE, 0);
+            if (readBytes == WSAECONNRESET)
+                response = 2;
+            else if (readBytes != WSAEWOULDBLOCK)
+                response = string(buf).compare(PONG_MSG);
+            
+            mode = 0;
+            if (socket.switchMode(client, &mode) == 1)
+                return 1;
+            
+            return response;
         }
 
         void close() {

@@ -34,12 +34,25 @@ class Client {
             bytesSent = socket.sendMessage(s, buf, msg.size(), 0);
         }
 
-        void recvMsg(char *buf) {
+        int recvMsg(char *buf) {
             int bytesRead = socket.recvMessage(s, buf, DEFAULT_SIZE, 0);
+            if (bytesRead == WSAECONNRESET) {
+                cout << "Could not connect to server. Try again later" << endl;
+                return 1;
+            }
             buf[bytesRead] = '\0';
             int msgSize = atoi(buf);
             bytesRead = socket.recvMessage(s, buf, msgSize, 0);
+            if (bytesRead == WSAECONNRESET) {
+                cout << "Could not connect to server. Try again later" << endl;
+                return 1;
+            }
             buf[bytesRead] = '\0';
+            return 0;
+        }
+
+        void pong() {
+            socket.sendMessage(s, PONG_MSG, DEFAULT_SIZE, 0);
         }
 
         void close() {
