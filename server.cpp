@@ -14,117 +14,145 @@ mutex msgLock;
 map<string, vector<string>> allMessages;
 condition_variable cv;
 
-void pingCurrentClient(Server server, SOCKET client, int *unrespondedPings) {
-    server.pingClient(client);
-    while (true) {
-        if (*unrespondedPings == 3)
-            break;
-        Sleep(2000);
-        msgLock.lock();
-        int response = server.getPong(client);
-        if (response == 1)
-            ++*unrespondedPings;
-        else if (response == 2) {
-            *unrespondedPings = 3;
-            msgLock.unlock();
-            return;
-        }
-        else
-            *unrespondedPings = 0;
-        msgLock.unlock();
+void pingCurrentClient(Server server, SOCKET client, mutex& internalLock, int& unrespondedPings) {
+    while (unrespondedPings < 3) {
+        Sleep(MAX_WAITING_TIME * 1000 - 20);
+        internalLock.lock();
         server.pingClient(client);
+        Sleep(20);
+        int response = server.getPong(client);
+        switch (response) {
+            case -1:
+                cout << "Something went wrong" << endl;
+                break;
+            case 0:
+                unrespondedPings = 0;
+                break;
+            case 1:
+                ++unrespondedPings;
+                cout << server.getClientName(client) << " with " << server.getClientIP(client) << ", "
+                    << server.getClientPort(client) << " did not pong" << endl;
+                break;
+            case 2:
+                unrespondedPings = 3;
+                cout << server.getClientName(client) << " with " << server.getClientIP(client) << ", "
+                    << server.getClientPort(client) << " closed connection" << endl;
+        }
+        internalLock.unlock();
     }
+    server.deleteClient(client);
 }
 
-void handleClient(Server server, SOCKET newClient) {
+void handleSubscriber(Server server, SOCKET newClient, thread& currentThread) {
     
     char buf[BUFFER_SIZE];
     int msgSize, lastMsgSent = 0, unrespondedPings = 0;
     string msg, topic, size, messagesNumber;
+    mutex internalLock;
 
+    thread p(pingCurrentClient, server, newClient, ref(internalLock), ref(unrespondedPings));
+
+    // Getting the topic:
+    int result = server.recvMsg(newClient, buf);
+    topic = string(buf);
+
+    // Sending subscription acknowledgement to the client:
+    result = server.sendMsg(newClient, SUCCESS);
+
+    // Getting and sending the number of messages in requested topic:
+    msgLock.lock();
+    
+    vector<string> topicMessages;
+    
+    topicMessages = allMessages[topic];
+    lastMsgSent = topicMessages.size();
+    
+    msgLock.unlock();
+
+    while (true) {
+        mutex m;
+        unique_lock<mutex> eventLock(m);    
+
+        cv.wait(eventLock);
+        if (unrespondedPings == 3)
+            break;
+        msgLock.lock();
+        topicMessages = allMessages[topic];
+        for (int i = lastMsgSent; i < topicMessages.size(); ++i) {
+            internalLock.lock();
+            server.sendMsg(newClient, MESSAGE);
+            server.sendMsg(newClient, &topicMessages.at(i)[0]);
+            internalLock.unlock();
+        }
+        lastMsgSent = topicMessages.size();
+        msgLock.unlock();
+    }
+    p.join();
+}
+
+void handlePublisher(Server server, SOCKET newClient, thread& currentThread) {
+
+    char buf[BUFFER_SIZE];
+    int msgSize, lastMsgSent = 0, unrespondedPings = 0;
+    string msg, topic, size, messagesNumber;
+    mutex internalLock;
+
+    // Creating a thread to ping the client over 10s periods:
+    thread p(pingCurrentClient, server, newClient, ref(internalLock), ref(unrespondedPings));
+    
+    // Getting the topic of the message:
+    server.recvMsg(newClient, buf);
+    topic = string(buf);
+
+    // Getting the message itself:
     server.recvMsg(newClient, buf);
     msg = string(buf);
 
-    if (msg.compare(SUB_SIGNAL) == 0) {
-        // Getting the topic:
-        server.recvMsg(newClient, buf);
-        topic = string(buf);
+    // Putting the new message into the storage:
+    msgLock.lock();
 
-        // Sending subscription acknowledgement to the client:
+    allMessages[topic].push_back(msg);
 
-        server.sendMsg(newClient, SUCCESS);
+    msgLock.unlock();
 
-        // Getting and sending the number of messages in requested topic:
+    cv.notify_all();
 
-        msgLock.lock();
+    // Sending Acknowledgement:
+    server.sendMsg(newClient, SUCCESS);
 
-        map<string, vector<string>>::iterator it;
-        vector<string> topicMessages;
-        try {
-            topicMessages = allMessages.at(topic);
-            lastMsgSent = topicMessages.size();
-            messagesNumber = to_string(topicMessages.size());
-            server.sendMsg(newClient, &messagesNumber[0]);
-            for (auto & elem: topicMessages) {
-                server.sendMsg(newClient, &elem[0]);
-            }
-        } catch (const out_of_range& e) {
-            server.sendMsg(newClient, "0         ");
-        }
+    p.join();
+}
 
-        msgLock.unlock();
+void handleClient(Server server, SOCKET newClient) {
+    
+    // Getting the first message from the client into 'buf'
+    char buf[BUFFER_SIZE];
+    string msg;
 
-        thread t(pingCurrentClient, server, newClient, &unrespondedPings);
-
-        while (true) {
-            mutex m;
-            unique_lock<mutex> eventLock(m);
-
-            cv.wait(eventLock);
-            if (unrespondedPings == 3) {
-                t.join();
-                return;
-            }
-            msgLock.lock();
-            topicMessages = allMessages[topic];
-            for (int i = lastMsgSent; i < topicMessages.size(); ++i) {
-                server.sendMsg(newClient, MESSAGE);
-                server.sendMsg(newClient, &topicMessages.at(i)[0]);
-            }
-            lastMsgSent = topicMessages.size();
-            msgLock.unlock();
-        }
-    }
-    else if (msg.compare(PUB_SIGNAL) == 0) {
-        // Getting the topic of the message:
-        server.recvMsg(newClient, buf);
-        topic = string(buf);
-
-        // Getting the message itself:
-        server.recvMsg(newClient, buf);
-        msg = string(buf);
-
-        msgLock.lock();
-
-        allMessages[topic].push_back(msg);
-        cv.notify_all();
-        
-        msgLock.unlock();
-
-        // Sending Acknowledgement:
-        server.sendMsg(newClient, SUCCESS);
-    }
+    server.recvMsg(newClient, buf);
+    msg = string(buf);
+    
+    // Creating a thread based on the type of the client 'subscriber/publisher'
+    thread t;
+    if (msg.compare(SUB_SIGNAL) == 0)
+        t = thread(handleSubscriber, server, newClient, ref(t));
+    else if (msg.compare(PUB_SIGNAL) == 0)
+        t = thread(handlePublisher, server, newClient, ref(t));
+    t.detach();
 }
 
 int main() {
 
+    // Creating a unique server to respond to incoming requests:
     Server server;
-    
+
+    // newClient receives and stores the clients sockets:
     SOCKET newClient;
+    
     while (true) {
+        // listening for and accepting incoming requests:
         server.welcomeClient(&newClient);
-        thread t(handleClient, server, newClient);
-        t.detach();
+        cout << server.getClientName(newClient) << " connected" << endl;
+        handleClient(server, newClient);
     }
-    server.close();
 }
