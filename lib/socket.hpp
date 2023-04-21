@@ -1,20 +1,18 @@
+// C++
 #include <iostream>
+
+#ifdef _PLATFORM_WINDOWS
+
 #include <winsock2.h>
 #include <Ws2tcpip.h>
-
 #pragma comment(lib, "ws2_32.lib")
 
-/*!
-    \class Socket
-
-    \brief The Socket class provides an interface to use the
-    socket-related functions of the Windows socket library.
+/**
+ * \class Socket
+ * \brief The Socket class provides an interface to use the
+ * socket-related functions of the Windows socket library.
 */
 class Socket {
-
-    private:
-        WSADATA wsaData;
-
     public:
         Socket() {
             if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -113,4 +111,67 @@ class Socket {
             }
             return 0;
         }
+
+    private:
+        WSADATA wsaData;
 };
+
+#endif
+
+#define _PLATFORM_LINUX
+
+#ifdef _PLATFORM_LINUX
+
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+
+namespace socket_interface
+{
+
+using Socket = int;
+
+/**
+ * \class Socket
+ * \brief The Socket class provides an interface to use the
+ * socket-related functions of the Windows socket library.
+*/
+class Socket {
+    public:
+        Socket(int af, int type, int protocol);
+
+        ~Socket();
+
+        void bind();
+
+        void listen(int backlog);
+
+        int accept_client(sockaddr *addr, int *addrlen);
+
+        void connect(const sockaddr *name, int namelen);
+
+        int send_message(const char *buf, int len, int flags);
+
+        // Terminates the programme if the peer closes the connection.
+        int recv_message(char *buf, int len, int flags);
+
+        void close(Socket s);
+
+        void get_addr_info(PCSTR pNodeName, PCSTR pServiceName, const ADDRINFOA *pHints, ADDRINFOA **ppResult);
+
+        int switch_mode(SOCKET s, u_long *mode);
+
+    private:
+    // Socket file descriptor
+        Socket socket_fd{};
+        Socket new_socket{};
+        struct sockaddr_in address;
+        int opt{ 1 };
+        int addrlen{ sizeof(address) };
+};
+
+}
+#endif

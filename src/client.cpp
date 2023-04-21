@@ -1,28 +1,18 @@
-#include <string>
-#include <thread>
-#include <vector>
-#include <mutex>
-#include <condition_variable>
-#include <chrono>
-#include <winsock2.h>
-#include <windows.h>
-#include "client.h"
-#include "constants.h"
-
-using namespace std;
+#include "client.hpp"
+#include "constants.hpp"
 
 bool status;
-mutex outputLock;
-condition_variable cv;
+std::mutex outputLock;
+std::condition_variable cv;
 
 void throwUsageError() {
-    cerr << endl << "Usage:\tpublish [Topic] [\"Message\"]" << endl
+    std::cerr << std::endl << "Usage:\tpublish [Topic] [\"Message\"]" << endl
     << "      \tor"
     << endl << "      \tsubscribe [Topic 1] [Topic 2] ... [Topic N]" << endl;
     exit(0);
 }
 
-void subscribeTopic(string host, string port, int topicIndex, char *argv[]) {
+void subscribeTopic(std::string host, std::string port, int topicIndex, char *argv[]) {
 
     string msg, msgSize, spaces = "          ";
     char buf[BUFFER_SIZE];

@@ -1,8 +1,30 @@
+// C++
 #include <string>
-#include "socket.h"
-#include "constants.h"
+#include <thread>
+#include <vector>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
 
-using namespace std;
+// If on Windows
+#ifdef _PLATFORM_WINDOWS
+
+#include <winsock2.h>
+#include <windows.h>
+
+#endif
+
+// If on Linux
+#ifdef _PLATFORM_LINUX
+
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+#endif
+
+// Package
+#include "socket.hpp"
+#include "constants.hpp"
 
 /*!
     \class Client
