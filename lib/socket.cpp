@@ -146,6 +146,16 @@ Socket::Socket(int network_protocol, __socket_type transport_protocol)
     }
 }
 
+Socket::~Socket()
+{
+
+}
+
+Socket::bind()
+{
+    
+}
+
 } // namespace socket_interface
 
 #endif

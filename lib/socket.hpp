@@ -96,11 +96,11 @@ class Socket {
 
     private:
         // Socket file descriptor
-        int socket_fd{};
-        int new_socket{};
-        struct sockaddr_in address;
-        int opt{ 1 };
-        int addrlen{ sizeof(address) };
+        int socket_fd_{};
+        int new_socket_{};
+        struct sockaddr_in address_;
+        int opt_{ 1 };
+        int addrlen_{ sizeof(address_) };
 };
 
 } // namespace socket_interface
