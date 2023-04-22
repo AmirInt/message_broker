@@ -71,11 +71,11 @@ namespace socket_interface
 */
 class Socket {
     public:
-        Socket(int network_protocol, __socket_type protocol);
+        Socket(int network_protocol, __socket_type protocol, uint port);
 
         ~Socket();
 
-        void bind();
+        void bind_socket();
 
         void listen(int backlog);
 
@@ -96,6 +96,9 @@ class Socket {
 
     private:
         // Socket file descriptor
+        int network_protocol_;
+        __socket_type transport_protocol_;
+        uint port_;
         int socket_fd_{};
         int new_socket_{};
         struct sockaddr_in address_;

@@ -133,14 +133,17 @@ int switchMode(SOCKET s, u_long *mode)
 namespace socket_interface
 {
 
-Socket::Socket(int network_protocol, __socket_type transport_protocol)
+Socket::Socket(int network_protocol, __socket_type transport_protocol, uint port)
+    : network_protocol_(network_protocol)
+    , transport_protocol_(transport_protocol)
+    , port_(port)
 {
-    if (network_protocol < 0 or network_protocol > 45) {
+    if (network_protocol_ < 0 or network_protocol_ > 45) {
         std::cerr << "Incorrect network_protocol range. Exiting...\n";
         exit(EXIT_FAILURE);
     }
     
-    if ((socket_fd = socket(AF_INET, transport_protocol, 0)) < 0) {
+    if ((socket_fd_ = socket(network_protocol_, transport_protocol_, 0)) < 0) {
         std::cerr << "Creating socket failed. Exiting...\n";
         exit(EXIT_FAILURE);
     }
@@ -151,9 +154,29 @@ Socket::~Socket()
 
 }
 
-Socket::bind()
+void Socket::bind_socket()
 {
-    
+    if (setsockopt(
+            socket_fd_
+            , SOL_SOCKET
+            , SO_REUSEADDR | SO_REUSEPORT
+            , &opt_
+            , sizeof(opt_)) < 0) {
+        std::cerr << "SetSockOpt failed. Exiting...\n";
+        exit(EXIT_FAILURE);
+    }
+
+    address_.sin_family = network_protocol_;
+    address_.sin_addr.s_addr = INADDR_ANY;
+    address_.sin_port = htons(port_);
+
+    if (bind(
+            socket_fd_
+            , static_cast<struct sockaddr*>(static_cast<void*>(&address_))
+            , addrlen_) < 0) {
+        std::cerr << "Binding socket failed. Exiting...\n";
+        exit(EXIT_FAILURE);
+    }
 }
 
 } // namespace socket_interface
