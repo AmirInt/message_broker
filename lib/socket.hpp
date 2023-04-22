@@ -71,7 +71,7 @@ namespace socket_interface
 */
 class Socket {
     public:
-        Socket(int af, int type, int protocol);
+        Socket(int network_protocol, __socket_type protocol);
 
         ~Socket();
 

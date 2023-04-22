@@ -133,9 +133,17 @@ int switchMode(SOCKET s, u_long *mode)
 namespace socket_interface
 {
 
-Socket::Socket(int af, int type, int protocol)
+Socket::Socket(int network_protocol, __socket_type transport_protocol)
 {
-
+    if (network_protocol < 0 or network_protocol > 45) {
+        std::cerr << "Incorrect network_protocol range. Exiting...\n";
+        exit(EXIT_FAILURE);
+    }
+    
+    if ((socket_fd = socket(AF_INET, transport_protocol, 0)) < 0) {
+        std::cerr << "Creating socket failed. Exiting...\n";
+        exit(EXIT_FAILURE);
+    }
 }
 
 } // namespace socket_interface
