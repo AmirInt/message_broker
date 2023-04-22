@@ -132,8 +132,6 @@ class Socket {
 namespace socket_interface
 {
 
-using Socket = int;
-
 /**
  * \class Socket
  * \brief The Socket class provides an interface to use the
@@ -158,16 +156,16 @@ class Socket {
         // Terminates the programme if the peer closes the connection.
         int recv_message(char *buf, int len, int flags);
 
-        void close(Socket s);
+        void close();
 
-        void get_addr_info(PCSTR pNodeName, PCSTR pServiceName, const ADDRINFOA *pHints, ADDRINFOA **ppResult);
+        // void get_addr_info(PCSTR pNodeName, PCSTR pServiceName, const ADDRINFOA *pHints, ADDRINFOA **ppResult);
 
-        int switch_mode(SOCKET s, u_long *mode);
+        // int switch_mode(SOCKET s, u_long *mode);
 
     private:
-    // Socket file descriptor
-        Socket socket_fd{};
-        Socket new_socket{};
+        // Socket file descriptor
+        int socket_fd{};
+        int new_socket{};
         struct sockaddr_in address;
         int opt{ 1 };
         int addrlen{ sizeof(address) };
