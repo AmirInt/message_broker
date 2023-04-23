@@ -138,10 +138,14 @@ Socket::Socket(int network_protocol, __socket_type transport_protocol, uint port
     , transport_protocol_(transport_protocol)
     , port_(port)
 {
-    if (network_protocol_ < 0 or network_protocol_ > 45) {
+    if (network_protocol_ < 0 or network_protocol_ > 45) { // Check for validity of the network protocol.
         std::cerr << "Incorrect network_protocol range. Exiting...\n";
         exit(EXIT_FAILURE);
     }
+
+    address_.sin_family = network_protocol_;
+    address_.sin_addr.s_addr = INADDR_ANY;
+    address_.sin_port = htons(port_);
     
     if ((socket_fd_ = socket(network_protocol_, transport_protocol_, 0)) < 0) {
         std::cerr << "Creating socket failed. Exiting...\n";
@@ -165,10 +169,6 @@ void Socket::bind_socket()
         std::cerr << "SetSockOpt failed. Exiting...\n";
         exit(EXIT_FAILURE);
     }
-
-    address_.sin_family = network_protocol_;
-    address_.sin_addr.s_addr = INADDR_ANY;
-    address_.sin_port = htons(port_);
 
     if (bind(
             socket_fd_
@@ -196,7 +196,21 @@ int Socket::accept_client()
             , static_cast<socklen_t*>(static_cast<void*>(&addrlen_)))) < 0) {
         std::cerr << "Accepting new connection failed. Exiting...\n";
         exit(EXIT_FAILURE);
+    }
+}
 
+void Socket::connect_socket(const std::string& server_address)
+{
+    if (inet_pton(network_protocol_, server_address.c_str(), &address_.sin_addr) <= 0) {
+        std::cerr << "Invalid address to connect to. Exiting...\n";
+        exit(EXIT_FAILURE);
+    }
+    if (connect(
+            socket_fd_
+            , static_cast<sockaddr*>(static_cast<void*>(&address_))
+            , addrlen_) < 0) {
+        std::cerr << "Connecting to server failed. Exiting...\n";
+        exit(EXIT_FAILURE);
     }
 }
 

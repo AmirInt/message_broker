@@ -55,6 +55,7 @@ class Socket {
 #ifdef _PLATFORM_LINUX
 
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,7 +82,7 @@ class Socket {
 
         int accept_client();
 
-        void connect(const sockaddr *name, int namelen);
+        void connect_socket(const std::string& server_address);
 
         int send_message(const char *buf, int len, int flags);
 
