@@ -77,7 +77,7 @@ class Socket {
 
         void bind_socket();
 
-        void listen(int backlog);
+        void listen_socket(int n_sockets_to_queue);
 
         int accept_client(sockaddr *addr, int *addrlen);
 

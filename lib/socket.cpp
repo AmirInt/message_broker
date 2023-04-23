@@ -179,6 +179,14 @@ void Socket::bind_socket()
     }
 }
 
+void Socket::listen_socket(int n_sockets_to_queue)
+{
+    if (listen(socket_fd_, n_sockets_to_queue) < 0) {
+        std::cerr << "Listening failed. Exiting...\n";
+        exit(EXIT_FAILURE);
+    }
+}
+
 } // namespace socket_interface
 
 #endif
