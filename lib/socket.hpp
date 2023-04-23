@@ -79,7 +79,7 @@ class Socket {
 
         void listen_socket(int n_sockets_to_queue);
 
-        int accept_client(sockaddr *addr, int *addrlen);
+        int accept_client();
 
         void connect(const sockaddr *name, int namelen);
 
@@ -100,7 +100,6 @@ class Socket {
         __socket_type transport_protocol_;
         uint port_;
         int socket_fd_{};
-        int new_socket_{};
         struct sockaddr_in address_;
         int opt_{ 1 };
         int addrlen_{ sizeof(address_) };

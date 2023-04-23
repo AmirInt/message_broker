@@ -172,7 +172,7 @@ void Socket::bind_socket()
 
     if (bind(
             socket_fd_
-            , static_cast<struct sockaddr*>(static_cast<void*>(&address_))
+            , static_cast<sockaddr*>(static_cast<void*>(&address_))
             , addrlen_) < 0) {
         std::cerr << "Binding socket failed. Exiting...\n";
         exit(EXIT_FAILURE);
@@ -184,6 +184,19 @@ void Socket::listen_socket(int n_sockets_to_queue)
     if (listen(socket_fd_, n_sockets_to_queue) < 0) {
         std::cerr << "Listening failed. Exiting...\n";
         exit(EXIT_FAILURE);
+    }
+}
+
+int Socket::accept_client()
+{
+    int new_socket{};
+    if ((new_socket = accept(
+            socket_fd_
+            , static_cast<sockaddr*>(static_cast<void*>(&address_))
+            , static_cast<socklen_t*>(static_cast<void*>(&addrlen_)))) < 0) {
+        std::cerr << "Accepting new connection failed. Exiting...\n";
+        exit(EXIT_FAILURE);
+
     }
 }
 
