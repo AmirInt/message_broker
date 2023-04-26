@@ -158,7 +158,7 @@ Socket::~Socket()
 
 }
 
-void Socket::bind_socket()
+void Socket::bindSocket()
 {
     if (setsockopt(
             socket_fd_
@@ -179,7 +179,7 @@ void Socket::bind_socket()
     }
 }
 
-void Socket::listen_socket(int n_sockets_to_queue)
+void Socket::listenSocket(int n_sockets_to_queue)
 {
     if (listen(socket_fd_, n_sockets_to_queue) < 0) {
         std::cerr << "Listening failed. Exiting...\n";
@@ -187,7 +187,7 @@ void Socket::listen_socket(int n_sockets_to_queue)
     }
 }
 
-int Socket::accept_client()
+int Socket::acceptClient()
 {
     int new_socket{};
     if ((new_socket = accept(
@@ -201,7 +201,7 @@ int Socket::accept_client()
     return new_socket;
 }
 
-void Socket::connect_socket(const std::string& server_address)
+void Socket::connectSocket(const std::string& server_address)
 {
     if (inet_pton(network_protocol_, server_address.c_str(), &address_.sin_addr) <= 0) {
         std::cerr << "Invalid address to connect to. Exiting...\n";

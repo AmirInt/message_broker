@@ -76,18 +76,18 @@ class Socket {
 
         ~Socket();
 
-        void bind_socket();
+        void bindSocket();
 
-        void listen_socket(int n_sockets_to_queue);
+        void listenSocket(int n_sockets_to_queue);
 
-        int accept_client();
+        int acceptClient();
 
-        void connect_socket(const std::string& server_address);
+        void connectSocket(const std::string& server_address);
 
-        int send_message(const char *buf, int len, int flags);
+        int sendMessage(const char *buf, int len, int flags);
 
         // Terminates the programme if the peer closes the connection.
-        int recv_message(char *buf, int len, int flags);
+        int recvMessage(char *buf, int len, int flags);
 
         void close();
 
