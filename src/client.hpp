@@ -6,31 +6,24 @@
 #include <condition_variable>
 #include <chrono>
 
-// If on Windows
-#ifdef _PLATFORM_WINDOWS
-
-#include <winsock2.h>
-#include <windows.h>
-
-#endif
-
-// If on Linux
-#ifdef _PLATFORM_LINUX
-
-#include <netinet/in.h>
-#include <sys/socket.h>
-
-#endif
-
 // Package
 #include "socket.hpp"
 #include "constants.hpp"
 
-/*!
-    \class Client
+// If on Windows
+#ifdef _PLATFORM_WINDOWS
 
-    \brief The Client class has functions to manipulate a client
-    in the programme.
+// Windows socket
+#include <winsock2.h>
+#include <windows.h>
+
+namespace client
+{
+
+/**
+ * \class Client
+ * \brief The Client class has functions to manipulate a client
+ * in the programme.
 */
 class Client {
     private:
@@ -115,4 +108,45 @@ class Client {
         void close() {
             socket.closeSocket(s);
         }
-};
+}; // class Client
+
+} // namespace client
+
+#endif
+
+#define _PLATFORM_LINUX
+// If on Linux
+#ifdef _PLATFORM_LINUX
+
+namespace client
+{
+
+/**
+ * \class Client
+ * \brief The Client class has functions to manipulate a client
+ * in the programme.
+*/
+class Client {
+    public:
+        Client(char *host, char *port);
+
+        int sendMsg(const char *buf);
+
+        int recvMsg(char *buf);
+
+        int pong();
+
+        void close();
+
+    private:
+        socket_interface::Socket socket;
+        SOCKET s;
+        struct addrinfo *result = NULL, hints;
+
+        void start();
+
+}; // class Client
+
+} // namespace client
+
+#endif

@@ -50,6 +50,8 @@ class Socket {
 
 #endif
 
+#define _PLATFORM_LINUX
+
 #ifdef _PLATFORM_LINUX
 
 #include <netinet/in.h>
