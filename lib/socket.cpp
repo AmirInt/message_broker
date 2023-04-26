@@ -197,6 +197,8 @@ int Socket::accept_client()
         std::cerr << "Accepting new connection failed. Exiting...\n";
         exit(EXIT_FAILURE);
     }
+
+    return new_socket;
 }
 
 void Socket::connect_socket(const std::string& server_address)
