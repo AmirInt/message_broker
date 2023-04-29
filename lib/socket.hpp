@@ -1,5 +1,6 @@
 // C++
 #include <iostream>
+#include "constants.hpp"
 
 #ifdef _PLATFORM_WINDOWS
 
@@ -84,12 +85,12 @@ class Socket {
 
         void connectSocket(const std::string& server_address);
 
-        int sendMessage(const char *buf, int len, int flags);
+        void sendMessage(const std::string& message, int flags = 0);
 
         // Terminates the programme if the peer closes the connection.
-        int recvMessage(char *buf, int len, int flags);
+        void recvMessage(std::string& message, int flags = 0);
 
-        void close();
+        void closeSocket();
 
         // void get_addr_info(PCSTR pNodeName, PCSTR pServiceName, const ADDRINFOA *pHints, ADDRINFOA **ppResult);
 

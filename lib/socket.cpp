@@ -216,6 +216,27 @@ void Socket::connectSocket(const std::string& server_address)
     }
 }
 
+void Socket::sendMessage(const std::string& message, int flags)
+{
+    if (send(socket_fd_, message.c_str(), message.length(), flags) == -1)
+        throw std::runtime_error("Error: Socket could not send the message.");
+}
+
+void Socket::recvMessage(std::string& message, int flags)
+{
+    char buffer[constants::buffer_size]{};
+    int len{ recv(socket_fd_, buffer, constants::buffer_size, flags) };
+    if (len == -1)
+        throw std::runtime_error("Error: Socket could not receive the message.");
+    
+    message = std::string(buffer, len);
+}
+
+void Socket::closeSocket()
+{
+    close(socket_fd_);
+}
+
 } // namespace socket_interface
 
 #endif
