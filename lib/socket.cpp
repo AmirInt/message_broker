@@ -155,7 +155,7 @@ Socket::Socket(int network_protocol, __socket_type transport_protocol, uint port
 
 Socket::~Socket()
 {
-
+    closeSocket();
 }
 
 void Socket::bindSocket()
@@ -235,6 +235,7 @@ void Socket::recvMessage(std::string& message, int flags)
 void Socket::closeSocket()
 {
     close(socket_fd_);
+    shutdown(socket_fd_, SHUT_RDWR);
 }
 
 } // namespace socket_interface
