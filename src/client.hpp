@@ -128,19 +128,18 @@ namespace client
 */
 class Client {
     public:
-        Client(char *host, char *port);
+        Client(const std::string& host, const std::string& port);
 
-        int sendMsg(const char *buf);
+        void sendMsg(const std::string& message);
 
-        int recvMsg(char *buf);
+        void recvMsg(std::string& message);
 
-        int pong();
+        void pong();
 
         void close();
 
     private:
         socket_interface::Socket socket;
-        SOCKET s;
         struct addrinfo *result = NULL, hints;
 
         void start();
