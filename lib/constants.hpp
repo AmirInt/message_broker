@@ -1,5 +1,5 @@
-#ifndef LIB__CONSTANTS_HPP_
-#define LIB__CONSTANTS_HPP_
+#ifndef CONSTANTS_HPP_
+#define CONSTANTS_HPP_
 
 
 /**
@@ -46,7 +46,7 @@ namespace constants
     // The number of the passed arguments to a client of type subscriber
     constexpr int sub_args_count{ 5 };
     // The number of the passed arguments to a client of type publisher
-    constexpr int sub_args_count{ 6 };
+    constexpr int pub_args_count{ 6 };
 
     // The index of the host address among the passed programme arguments
     constexpr int host_index{ 1 };

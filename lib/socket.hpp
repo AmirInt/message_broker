@@ -51,8 +51,6 @@ class Socket {
 
 #endif
 
-#define _PLATFORM_LINUX
-
 #ifdef _PLATFORM_LINUX
 
 #include <netinet/in.h>
@@ -87,14 +85,9 @@ class Socket {
 
         void sendMessage(const std::string& message, int flags = 0);
 
-        // Terminates the programme if the peer closes the connection.
         void recvMessage(std::string& message, int flags = 0);
 
         void closeSocket();
-
-        // void get_addr_info(PCSTR pNodeName, PCSTR pServiceName, const ADDRINFOA *pHints, ADDRINFOA **ppResult);
-
-        // int switch_mode(SOCKET s, u_long *mode);
 
     private:
         // Socket file descriptor

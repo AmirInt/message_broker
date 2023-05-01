@@ -1,3 +1,6 @@
+#ifndef CLIENT_HPP_
+#define CLIENT_HPP_
+
 // C++
 #include <string>
 #include <thread>
@@ -112,9 +115,8 @@ class Client {
 
 } // namespace client
 
-#endif
+#endif // _PLATFORM_LINUX
 
-#define _PLATFORM_LINUX
 // If on Linux
 #ifdef _PLATFORM_LINUX
 
@@ -148,4 +150,6 @@ class Client {
 
 } // namespace client
 
-#endif
+#endif // _PLATFORM_LINUX
+
+#endif // Header guard

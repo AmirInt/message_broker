@@ -138,19 +138,15 @@ Socket::Socket(int network_protocol, __socket_type transport_protocol, uint port
     , transport_protocol_(transport_protocol)
     , port_(port)
 {
-    if (network_protocol_ < 0 or network_protocol_ > 45) { // Check for validity of the network protocol.
-        std::cerr << "Incorrect network_protocol range. Exiting...\n";
-        exit(EXIT_FAILURE);
-    }
+    if (network_protocol_ < 0 or network_protocol_ > 45) // Check for validity of the network protocol.
+        throw std::invalid_argument("Error: Incorrect network_protocol range. Exiting...");
 
     address_.sin_family = network_protocol_;
     address_.sin_addr.s_addr = INADDR_ANY;
     address_.sin_port = htons(port_);
     
-    if ((socket_fd_ = socket(network_protocol_, transport_protocol_, 0)) < 0) {
-        std::cerr << "Creating socket failed. Exiting...\n";
-        exit(EXIT_FAILURE);
-    }
+    if ((socket_fd_ = socket(network_protocol_, transport_protocol_, 0)) < 0)
+        throw std::runtime_error("Error: Creating socket failed. Exiting...");
 }
 
 Socket::~Socket()
@@ -225,7 +221,7 @@ void Socket::sendMessage(const std::string& message, int flags)
 void Socket::recvMessage(std::string& message, int flags)
 {
     char buffer[constants::buffer_size]{};
-    int len{ recv(socket_fd_, buffer, constants::buffer_size, flags) };
+    long len{ recv(socket_fd_, buffer, constants::buffer_size, flags) };
     if (len == -1)
         throw std::runtime_error("Error: Socket could not receive the message.");
     
