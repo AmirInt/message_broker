@@ -1,5 +1,8 @@
-#include "client.hpp"
 #include "constants.hpp"
+#include "client.hpp"
+
+
+#ifdef _PLATFORM_WINDOWS
 
 bool status;
 std::mutex outputLock;
@@ -145,3 +148,18 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+#endif // _PLATFORM_WINDOWS
+
+#ifdef _PLATFORM_LINUX
+
+namespace client
+{
+    Client::Client(const std::string& host, uint port)
+        : socket_(AF_INET, SOCK_STREAM, port)
+    {
+        socket_.connectSocket(host);
+    }
+}
+
+#endif // _PLATFORM_LINUX

@@ -130,20 +130,22 @@ namespace client
 */
 class Client {
     public:
-        Client(const std::string& host, const std::string& port);
+        Client(const std::string& host, uint port);
 
         void sendMsg(const std::string& message);
 
         void recvMsg(std::string& message);
+
+        void subscribe(const std::string& topic);
+
+        void publish(const std::string& topic, const std::string& message);
 
         void pong();
 
         void close();
 
     private:
-        socket_interface::Socket socket;
-
-        void start();
+        socket_interface::Socket socket_;
 
 }; // class Client
 
@@ -151,4 +153,4 @@ class Client {
 
 #endif // _PLATFORM_LINUX
 
-#endif // Header guard
+#endif // CLIENT_HPP_
