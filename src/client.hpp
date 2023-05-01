@@ -115,7 +115,7 @@ class Client {
 
 } // namespace client
 
-#endif // _PLATFORM_LINUX
+#endif // _PLATFORM_WINDOWS
 
 // If on Linux
 #ifdef _PLATFORM_LINUX
@@ -142,7 +142,6 @@ class Client {
 
     private:
         socket_interface::Socket socket;
-        struct addrinfo *result = NULL, hints;
 
         void start();
 

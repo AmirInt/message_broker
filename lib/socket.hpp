@@ -1,3 +1,6 @@
+#ifndef SOCKET_HPP_
+#define SOCKET_HPP_
+
 // C++
 #include <iostream>
 #include "constants.hpp"
@@ -47,9 +50,9 @@ class Socket {
         WSADATA wsaData;
 };
 
-}
+} // namespace socket_interface
 
-#endif
+#endif // _PLATFORM_WINDOWS
 
 #ifdef _PLATFORM_LINUX
 
@@ -101,4 +104,7 @@ class Socket {
 };
 
 } // namespace socket_interface
-#endif
+
+#endif // _PLATFORM_LINUX
+
+#endif // SOCKET_HPP_
