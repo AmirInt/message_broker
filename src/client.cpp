@@ -160,6 +160,19 @@ namespace client
     {
         socket_.connectSocket(host);
     }
+
+    void Client::sendMsg(const std::string& message)
+    {
+        // First, send the initialiser message
+        // To pad initialiser messages
+        static const std::string spaces{ "          " };
+        std::string message_size{ std::to_string(message.size()) };
+        message_size += spaces.substr(0, constants::default_size - message_size.size());
+        socket_.sendMessage(message_size);
+
+        // Then, send the message itself
+        socket_.sendMessage(message);
+    }
 }
 
 #endif // _PLATFORM_LINUX
