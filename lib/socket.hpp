@@ -88,7 +88,7 @@ class Socket {
 
         void sendMessage(const std::string& message, int flags = 0);
 
-        void recvMessage(std::string& message, int flags = 0);
+        void recvMessage(std::string& message, std::size_t len, int flags = 0);
 
         void closeSocket();
 

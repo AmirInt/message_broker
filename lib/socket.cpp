@@ -218,14 +218,19 @@ void Socket::sendMessage(const std::string& message, int flags)
         throw std::runtime_error("Error: Socket could not send the message.");
 }
 
-void Socket::recvMessage(std::string& message, int flags)
+void Socket::recvMessage(std::string& message, std::size_t len, int flags)
 {
     char buffer[constants::buffer_size]{};
-    long len{ recv(socket_fd_, buffer, constants::buffer_size, flags) };
-    if (len == -1)
-        throw std::runtime_error("Error: Socket could not receive the message.");
-    
-    message = std::string(buffer, len);
+    long read_len{};
+
+    for (std::size_t read_so_far{ 0 }; read_so_far < len;) {
+        read_len = recv(socket_fd_, buffer, constants::buffer_size, flags);
+        if (len == -1)
+            throw std::runtime_error("Error: Socket could not receive the message.");
+        
+        message += std::string(buffer, read_len);
+        read_so_far += read_len;
+    }
 }
 
 void Socket::closeSocket()

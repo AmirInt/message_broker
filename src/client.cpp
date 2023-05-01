@@ -173,6 +173,17 @@ namespace client
         // Then, send the message itself
         socket_.sendMessage(message);
     }
+
+    void Client::recvMsg(std::string& message)
+    {
+        // First, read the incoming message size
+        std::string msg_size_string{};
+        socket_.recvMessage(msg_size_string, constants::default_size);
+        std::size_t msg_size{ std::stoul(msg_size_string) };
+
+        // Now, read the main message
+        socket_.recvMessage(message, msg_size);
+    }
 }
 
 #endif // _PLATFORM_LINUX
