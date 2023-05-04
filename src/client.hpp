@@ -147,6 +147,8 @@ class Client {
     private:
         socket_interface::Socket socket_;
 
+        std::thread subscriptions_;
+
 }; // class Client
 
 } // namespace client

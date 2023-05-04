@@ -184,6 +184,20 @@ namespace client
         // Now, read the main message
         socket_.recvMessage(message, msg_size);
     }
+
+    void Client::subscribe(const std::string& topic)
+    {
+        sendMsg(std::to_string(constants::sub_signal));
+        sendMsg(topic);
+    }
+
+    void Client::publish(const std::string& topic, const std::string& message)
+    {
+        sendMsg(std::to_string(constants::sub_signal));
+        sendMsg(topic);
+        sendMsg(message);
+    }
+
 }
 
 #endif // _PLATFORM_LINUX

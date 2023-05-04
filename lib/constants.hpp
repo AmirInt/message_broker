@@ -1,6 +1,7 @@
 #ifndef CONSTANTS_HPP_
 #define CONSTANTS_HPP_
 
+#include <string>
 
 /**
  * \brief Determines the type of the created client
@@ -9,17 +10,6 @@ enum class ClientType
 {
     sub,
     pub,
-};
-
-/**
- * \brief Determines the type of the signal.
-*/
-enum class SignalType
-{
-    // Determines that the client wants to subscribe to a topic
-    sub_signal,
-    // Determines that the client wants to publish a message
-    pub_signal,
 };
 
 /**
@@ -61,6 +51,11 @@ namespace constants
     constexpr int buffer_size{ 2048 };
     // The maximum time the client waits for the server to respond
     constexpr int max_waiting_time{ 10 }; // seconds
+
+    // The subscribe and publish signals
+    constexpr int sub_signal{ 1001 }; // seconds
+    constexpr int pub_signal{ 1002 }; // seconds
+
 }
 
 #endif
