@@ -4,10 +4,6 @@
 // C++
 #include <string>
 #include <thread>
-#include <vector>
-#include <mutex>
-#include <condition_variable>
-#include <chrono>
 
 // Package
 #include "socket.hpp"
