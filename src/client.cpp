@@ -189,13 +189,27 @@ namespace client
     {
         sendMsg(std::to_string(constants::sub_signal));
         sendMsg(topic);
+        
+        std::string response;
+        recvMsg(response);
+        if (response == std::to_string(constants::success))
+            std::cout << "Successfully subscribed to " << topic << '\n';
+        else
+            std::cerr << "Failed to subscribed to " << topic << '\n';
     }
 
     void Client::publish(const std::string& topic, const std::string& message)
     {
-        sendMsg(std::to_string(constants::sub_signal));
+        sendMsg(std::to_string(constants::pub_signal));
         sendMsg(topic);
         sendMsg(message);
+
+        std::string response;
+        recvMsg(response);
+        if (response == std::to_string(constants::success))
+            std::cout << "Successfully published message.\n";
+        else
+            std::cerr << "Failed to publish message.";
     }
 
 }

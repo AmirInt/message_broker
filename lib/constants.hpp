@@ -13,15 +13,6 @@ enum class ClientType
 };
 
 /**
- * \brief Determines the status of the most recently sent message
-*/
-enum class Status
-{
-    success,
-    failure,
-};
-
-/**
  * \brief Determines the type of the message to send
 */
 enum class MessageType
@@ -53,8 +44,12 @@ namespace constants
     constexpr int max_waiting_time{ 10 }; // seconds
 
     // The subscribe and publish signals
-    constexpr int sub_signal{ 1001 }; // seconds
-    constexpr int pub_signal{ 1002 }; // seconds
+    constexpr int sub_signal{ 1001 };
+    constexpr int pub_signal{ 1002 };
+
+    // The success and failure signals
+    constexpr int success{ 200 };
+    constexpr int failure{ 400 };
 
 }
 
