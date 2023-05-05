@@ -5,8 +5,10 @@
 #include <map>
 #include <condition_variable>
 #include <chrono>
-#include "server.h"
-#include "constants.h"
+#include "server.hpp"
+
+
+#ifdef _PLATFORM_WINDOWS
 
 using namespace std;
 
@@ -156,3 +158,16 @@ int main() {
         handleClient(server, newClient);
     }
 }
+
+#endif // _PLATFORM_WINDOWS
+
+#ifdef _PLATFORM_LINUX
+
+namespace server
+{
+
+
+
+} // namespace server
+
+#endif // _PLATFORM_LINUX

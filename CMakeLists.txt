@@ -10,3 +10,7 @@ target_include_directories(socket PRIVATE lib)
 add_library(client src/client.cpp)
 target_link_libraries(client socket)
 target_include_directories(client PRIVATE lib)
+
+add_library(server src/server.cpp)
+target_link_libraries(server socket)
+target_include_directories(server PRIVATE lib)

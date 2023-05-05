@@ -1,7 +1,15 @@
+#ifndef SERVER_HPP_
+#define SERVER_HPP_
+
+// C++
 #include <string>
-#include <map>
-#include "socket.h"
-#include "constants.h"
+
+// Package
+#include "socket.hpp"
+#include "constants.hpp"
+
+// If on Windows
+#ifdef _PLATFORM_WINDOWS
 
 using namespace std;
 
@@ -178,3 +186,27 @@ class Server {
             socket.closeSocket(client);
         }
 };
+
+#endif // _PLATFORM_WINDOWS
+
+#ifdef _PLATFORM_LINUX
+
+namespace server
+{
+
+class Server
+{
+    public:
+        Server();
+
+        ~Server();
+
+    private:
+
+}; // class Server
+
+} // namespace server
+
+#endif // _PLATFORM_LINUX
+
+#endif // SERVER_HPP_
