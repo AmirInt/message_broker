@@ -161,6 +161,11 @@ namespace client
         socket_.connectSocket(host);
     }
 
+    Client::~Client()
+    {
+        close();
+    }
+
     void Client::sendMsg(const std::string& message)
     {
         // First, send the initialiser message
@@ -210,6 +215,16 @@ namespace client
             std::cout << "Successfully published message.\n";
         else
             std::cerr << "Failed to publish message.";
+    }
+
+    void Client::pong()
+    {
+        sendMsg(std::to_string(constants::pong));
+    }
+
+    void Client::close()
+    {
+        socket_.closeSocket();
     }
 
 }

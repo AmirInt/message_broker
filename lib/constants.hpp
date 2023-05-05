@@ -3,24 +3,6 @@
 
 #include <string>
 
-/**
- * \brief Determines the type of the created client
-*/
-enum class ClientType
-{
-    sub,
-    pub,
-};
-
-/**
- * \brief Determines the type of the message to send
-*/
-enum class MessageType
-{
-    ping,
-    pong,
-    user,
-};
 
 namespace constants
 {
@@ -51,6 +33,8 @@ namespace constants
     constexpr int success{ 200 };
     constexpr int failure{ 400 };
 
+    constexpr int ping{ 1003 };
+    constexpr int pong{ 1004 };
 }
 
 #endif
