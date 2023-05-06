@@ -153,12 +153,8 @@ Socket::Socket(int network_protocol, __socket_type transport_protocol, uint port
             , SOL_SOCKET
             , SO_REUSEADDR | SO_REUSEPORT
             , &opt_
-            , sizeof(opt_)) < 0) {
-        std::cerr << "SetSockOpt failed. Exiting...\n";
-        exit(EXIT_FAILURE);
-    }
-
-
+            , sizeof(opt_)) < 0)
+        throw std::runtime_error("Error: SetSockOpt failed. Exiting...");
 }
 
 Socket::~Socket()
@@ -171,18 +167,14 @@ void Socket::bindSocket()
     if (bind(
             socket_fd_
             , static_cast<sockaddr*>(static_cast<void*>(&address_))
-            , addrlen_) < 0) {
-        std::cerr << "Binding socket failed. Exiting...\n";
-        exit(EXIT_FAILURE);
-    }
+            , addrlen_) < 0)
+        throw std::runtime_error("Error: Binding socket failed. Exiting...");
 }
 
 void Socket::listenSocket(int n_sockets_to_queue)
 {
-    if (listen(socket_fd_, n_sockets_to_queue) < 0) {
-        std::cerr << "Listening failed. Exiting...\n";
-        exit(EXIT_FAILURE);
-    }
+    if (listen(socket_fd_, n_sockets_to_queue) < 0)
+        throw std::runtime_error("Error: Listening failed. Exiting...");
 }
 
 int Socket::acceptClient()
@@ -191,27 +183,22 @@ int Socket::acceptClient()
     if ((new_socket = accept(
             socket_fd_
             , static_cast<sockaddr*>(static_cast<void*>(&address_))
-            , static_cast<socklen_t*>(static_cast<void*>(&addrlen_)))) < 0) {
-        std::cerr << "Accepting new connection failed. Exiting...\n";
-        exit(EXIT_FAILURE);
-    }
+            , static_cast<socklen_t*>(static_cast<void*>(&addrlen_)))) < 0)
+        throw std::runtime_error("Error: Accepting new connection failed. Exiting...");
 
     return new_socket;
 }
 
 void Socket::connectSocket(const std::string& server_address)
 {
-    if (inet_pton(network_protocol_, server_address.c_str(), &address_.sin_addr) <= 0) {
-        std::cerr << "Invalid address to connect to. Exiting...\n";
-        exit(EXIT_FAILURE);
-    }
+    if (inet_pton(network_protocol_, server_address.c_str(), &address_.sin_addr) <= 0)
+        throw std::runtime_error("Error: Invalid address to connect to. Exiting...");
+
     if (connect(
             socket_fd_
             , static_cast<sockaddr*>(static_cast<void*>(&address_))
-            , addrlen_) < 0) {
-        std::cerr << "Connecting to server failed. Exiting...\n";
-        exit(EXIT_FAILURE);
-    }
+            , addrlen_) < 0)
+        throw std::runtime_error("Error: Connecting to server failed. Exiting...");
 }
 
 void Socket::sendMessage(const std::string& message, int flags)

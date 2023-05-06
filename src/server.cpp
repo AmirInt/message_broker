@@ -171,6 +171,7 @@ Server::Server(uint port, int n_sockets_to_queue)
 {
     main_socket_.bindSocket();
     main_socket_.listenSocket(n_sockets_to_queue);
+    welcomeCilents();
 }
 
 } // namespace server
