@@ -147,15 +147,7 @@ Socket::Socket(int network_protocol, __socket_type transport_protocol, uint port
     
     if ((socket_fd_ = socket(network_protocol_, transport_protocol_, 0)) < 0)
         throw std::runtime_error("Error: Creating socket failed. Exiting...");
-}
-
-Socket::~Socket()
-{
-    closeSocket();
-}
-
-void Socket::bindSocket()
-{
+    
     if (setsockopt(
             socket_fd_
             , SOL_SOCKET
@@ -166,6 +158,16 @@ void Socket::bindSocket()
         exit(EXIT_FAILURE);
     }
 
+
+}
+
+Socket::~Socket()
+{
+    closeSocket();
+}
+
+void Socket::bindSocket()
+{
     if (bind(
             socket_fd_
             , static_cast<sockaddr*>(static_cast<void*>(&address_))

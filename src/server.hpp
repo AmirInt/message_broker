@@ -197,11 +197,14 @@ namespace server
 class Server
 {
     public:
-        Server();
+        Server(uint port, int n_sockets_to_queue = 0);
 
         ~Server();
 
     private:
+        socket_interface::Socket main_socket_;
+
+        void welcomeCilents();
 
 }; // class Server
 
