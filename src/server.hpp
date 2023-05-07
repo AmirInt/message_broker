@@ -224,6 +224,8 @@ class Server
 
         std::map<std::size_t, Tunnel> client_tunnels_;
 
+        std::size_t clients_count_;
+
 }; // class Server
 
 } // namespace server
