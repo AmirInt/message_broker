@@ -3,6 +3,11 @@
 
 // C++
 #include <string>
+#include <vector>
+#include <map>
+#include <queue>
+#include <thread>
+#include <utility> // For std::pair
 
 // Package
 #include "socket.hpp"
@@ -202,9 +207,22 @@ class Server
         ~Server();
 
     private:
+        void welcomeCilents();
+
         socket_interface::Socket main_socket_;
 
-        void welcomeCilents();
+        std::vector<std::thread> client_handlers_; 
+
+        // Payload will hold a topic-message pair
+        using Payload = std::pair<std::string, std::string>;
+
+        // Tunnel will hold a lock-queue pair. To use each instance one must first
+        // acquire the lock, use the queue and free the lock.
+        using Tunnel = std::pair<std::mutex, std::queue<Payload>>;
+
+        Tunnel main_tunnel_;
+
+        std::map<std::size_t, Tunnel> client_tunnels_;
 
 }; // class Server
 
