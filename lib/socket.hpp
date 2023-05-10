@@ -67,6 +67,11 @@ class Socket {
 namespace socket_interface
 {
 
+void sendOnSocket(int socket_fd, const std::string& message, int flags = 0);
+
+void recvOnSocket(int socket_fd, std::string& message, std::size_t len, int flags = 0);
+
+
 /**
  * \class Socket
  * \brief The Socket class provides an interface to use the

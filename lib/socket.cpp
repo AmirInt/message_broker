@@ -133,6 +133,28 @@ int switchMode(SOCKET s, u_long *mode)
 namespace socket_interface
 {
 
+void sendOnSocket(int socket_fd, const std::string& message, int flags)
+{
+    if (send(socket_fd, message.c_str(), message.length(), flags) == -1)
+        throw std::runtime_error("Error: Socket could not send the message.");
+}
+
+void recvOnSocket(int socket_fd, std::string& message, std::size_t len, int flags)
+{
+    char buffer[constants::buffer_size]{};
+    long read_len{};
+
+    for (std::size_t read_so_far{ 0 }; read_so_far < len;) {
+        read_len = recv(socket_fd, buffer, constants::buffer_size, flags);
+        if (len == -1)
+            throw std::runtime_error("Error: Socket could not receive the message.");
+        
+        message += std::string(buffer, read_len);
+        read_so_far += read_len;
+    }
+}
+
+
 Socket::Socket(int network_protocol, __socket_type transport_protocol, uint port)
     : network_protocol_(network_protocol)
     , transport_protocol_(transport_protocol)
