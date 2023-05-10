@@ -174,6 +174,28 @@ Server::Server(uint port, int n_sockets_to_queue)
     welcomeCilents();
 }
 
+Server::~Server()
+{
+    main_socket_.closeSocket();
+}
+
+void Server::welcomeCilents()
+{
+    while (true) {
+        int new_client_socket = main_socket_.acceptClient();
+        client_tunnels_.emplace(clients_count_++, Tunnel());
+        client_handlers_.push_back(std::thread(
+                handleClient
+                , new_client_socket
+                , client_tunnels_[clients_count_ - 1]));
+    }
+}
+
+void Server::handleClient(int socket_fd, Tunnel& client_tunnel)
+{
+    
+}
+
 } // namespace server
 
 #endif // _PLATFORM_LINUX

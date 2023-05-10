@@ -199,6 +199,16 @@ class Server {
 namespace server
 {
 
+// Payload will hold a topic-message pair
+using Payload = std::pair<std::string, std::string>;
+
+// Tunnel will hold a lock-queue pair. To use each instance one must first
+// acquire the lock, use the queue and free the lock.
+using Tunnel = std::pair<std::mutex, std::queue<Payload>>;
+
+using ClientID = std::size_t;
+
+
 class Server
 {
     public:
@@ -209,22 +219,17 @@ class Server
     private:
         void welcomeCilents();
 
+        void handleClient(int socket_fd, Tunnel& client_tunnel);
+
         socket_interface::Socket main_socket_;
 
         std::vector<std::thread> client_handlers_; 
 
-        // Payload will hold a topic-message pair
-        using Payload = std::pair<std::string, std::string>;
-
-        // Tunnel will hold a lock-queue pair. To use each instance one must first
-        // acquire the lock, use the queue and free the lock.
-        using Tunnel = std::pair<std::mutex, std::queue<Payload>>;
-
         Tunnel main_tunnel_;
 
-        std::map<std::size_t, Tunnel> client_tunnels_;
+        std::map<ClientID, Tunnel> client_tunnels_;
 
-        std::size_t clients_count_;
+        ClientID clients_count_;
 
 }; // class Server
 
