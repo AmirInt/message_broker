@@ -8,6 +8,7 @@
 #include <queue>
 #include <thread>
 #include <utility> // For std::pair
+#include <set>
 
 // Package
 #include "socket.hpp"
@@ -199,14 +200,20 @@ class Server {
 namespace server
 {
 
+using Topic = std::string;
+
+using Message = std::string;
+
 // Payload will hold a topic-message pair
-using Payload = std::pair<std::string, std::string>;
+using Payload = std::pair<Topic, Message>;
 
 // Tunnel will hold a lock-queue pair. To use each instance one must first
 // acquire the lock, use the queue and free the lock.
 using Tunnel = std::pair<std::mutex, std::queue<Payload>>;
 
 using ClientID = std::size_t;
+
+using SocketFd = int;
 
 
 class Server
@@ -219,15 +226,23 @@ class Server
     private:
         void welcomeCilents();
 
-        void handleClient(int socket_fd, Tunnel& client_tunnel);
+        void watchMainTunnel();
+
+        void distributePayload(const Payload& payload);
+
+        void handleClient(SocketFd socket_fd);
+
+        void insertIntoMainTunnel(const Payload& payload);
 
         socket_interface::Socket main_socket_;
 
         std::vector<std::thread> client_handlers_; 
 
         Tunnel main_tunnel_;
+        std::thread main_tunnel_guardian_;
 
-        std::map<ClientID, Tunnel> client_tunnels_;
+        std::map<Topic, std::mutex> subscribing_clients_locks_;
+        std::map<Topic, std::set<SocketFd>> subscribing_clients_; 
 
         ClientID clients_count_;
 

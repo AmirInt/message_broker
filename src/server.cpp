@@ -168,6 +168,10 @@ namespace server
 
 Server::Server(uint port, int n_sockets_to_queue)
     : main_socket_(AF_INET, SOCK_STREAM, port)
+    , main_tunnel_guardian_(std::thread(
+        watchMainTunnel
+    ))
+    , clients_count_(0)
 {
     main_socket_.bindSocket();
     main_socket_.listenSocket(n_sockets_to_queue);
@@ -183,17 +187,27 @@ void Server::welcomeCilents()
 {
     while (true) {
         int new_client_socket = main_socket_.acceptClient();
-        client_tunnels_.emplace(clients_count_++, Tunnel());
         client_handlers_.push_back(std::thread(
                 handleClient
-                , new_client_socket
-                , client_tunnels_[clients_count_ - 1]));
+                , new_client_socket));
     }
 }
 
-void Server::handleClient(int socket_fd, Tunnel& client_tunnel)
+void Server::watchMainTunnel()
 {
     
+}
+
+void Server::handleClient(int socket_fd)
+{
+    
+}
+
+void Server::insertIntoMainTunnel(const Payload& payload)
+{
+    main_tunnel_.first.lock();
+    main_tunnel_.second.push(payload);
+    main_tunnel_.first.unlock();
 }
 
 } // namespace server
