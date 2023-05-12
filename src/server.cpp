@@ -171,7 +171,6 @@ Server::Server(uint port, int n_sockets_to_queue)
     , main_tunnel_guardian_(std::thread(
         watchMainTunnel
     ))
-    , clients_count_(0)
 {
     main_socket_.bindSocket();
     main_socket_.listenSocket(n_sockets_to_queue);
@@ -195,7 +194,20 @@ void Server::welcomeCilents()
 
 void Server::watchMainTunnel()
 {
-    
+
+}
+
+void Server::distributePayload(const Payload& payload)
+{
+    try {
+        subscribing_clients_locks_[payload.first].lock();
+        for (const auto& subscribing_client : subscribing_clients_[payload.first]) {
+            try {
+                // TODO: Implement the protocol
+                socket_interface::sendOnSocket(subscribing_client, payload.second);
+            } catch (std::runtime_error&) {}
+        }
+    } catch (std::out_of_range&) {}
 }
 
 void Server::handleClient(int socket_fd)

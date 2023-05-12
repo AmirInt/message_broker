@@ -244,8 +244,6 @@ class Server
         std::map<Topic, std::mutex> subscribing_clients_locks_;
         std::map<Topic, std::set<SocketFd>> subscribing_clients_; 
 
-        ClientID clients_count_;
-
 }; // class Server
 
 } // namespace server
