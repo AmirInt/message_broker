@@ -211,6 +211,13 @@ void Server::distributePayload(const Payload& payload)
         for (const auto& subscribing_client : subscribing_clients_[payload.first]) {
             try {
                 static const std::string spaces{ "          " };
+                // Send the initialiser
+                std::string init{ std::to_string(constants::msg_signal) };
+                std::string init_size{ std::to_string(init.length()) };
+                init_size += spaces.substr(0, constants::default_size - init_size.size());
+                socket_interface::sendOnSocket(subscribing_client, init_size);
+                socket_interface::sendOnSocket(subscribing_client, init);
+                
                 // First, send the topic
                 std::string topic_size{ std::to_string(payload.first.size()) };
                 topic_size += spaces.substr(0, constants::default_size - topic_size.size());

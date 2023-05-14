@@ -25,6 +25,8 @@ namespace constants
     // The maximum time the client waits for the server to respond
     constexpr int max_waiting_time{ 10 }; // seconds
 
+    constexpr int msg_signal{ 1000 };
+
     // The subscribe and publish signals
     constexpr int sub_signal{ 1001 };
     constexpr int pub_signal{ 1002 };
