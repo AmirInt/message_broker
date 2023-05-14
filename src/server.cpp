@@ -194,7 +194,14 @@ void Server::welcomeCilents()
 
 void Server::watchMainTunnel()
 {
-
+    try {
+        while (true) {
+            if (not main_tunnel_.second.empty()) {
+                distributePayload(main_tunnel_.second.front());
+                main_tunnel_.second.pop();
+            }
+        }
+    } catch (std::runtime_error&) {}
 }
 
 void Server::distributePayload(const Payload& payload)
