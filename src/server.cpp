@@ -203,7 +203,14 @@ void Server::distributePayload(const Payload& payload)
         subscribing_clients_locks_[payload.first].lock();
         for (const auto& subscribing_client : subscribing_clients_[payload.first]) {
             try {
-                // TODO: Implement the protocol
+                // First, send the initialiser message
+                // To pad initialiser messages
+                static const std::string spaces{ "          " };
+                std::string message_size{ std::to_string(payload.second.size()) };
+                message_size += spaces.substr(0, constants::default_size - message_size.size());
+                socket_interface::sendOnSocket(subscribing_client, message_size);
+
+                // Then, send the message itself
                 socket_interface::sendOnSocket(subscribing_client, payload.second);
             } catch (std::runtime_error&) {}
         }
