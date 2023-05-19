@@ -165,37 +165,13 @@ namespace client
         close();
     }
 
-    void Client::sendMsg(const std::string& message)
-    {
-        // First, send the initialiser message
-        // To pad initialiser messages
-        static const std::string spaces{ "          " };
-        std::string message_size{ std::to_string(message.size()) };
-        message_size += spaces.substr(0, constants::default_size - message_size.size());
-        socket_.sendMessage(message_size);
-
-        // Then, send the message itself
-        socket_.sendMessage(message);
-    }
-
-    void Client::recvMsg(std::string& message)
-    {
-        // First, read the incoming message size
-        std::string msg_size_string{};
-        socket_.recvMessage(msg_size_string, constants::default_size);
-        std::size_t msg_size{ std::stoul(msg_size_string) };
-
-        // Now, read the main message
-        socket_.recvMessage(message, msg_size);
-    }
-
     void Client::subscribe(const std::string& topic)
     {
-        sendMsg(std::to_string(constants::sub_signal));
-        sendMsg(topic);
+        sendMsg(socket_, std::to_string(constants::sub_signal));
+        sendMsg(socket_, topic);
         
         std::string response;
-        recvMsg(response);
+        recvMsg(socket_, response);
         if (response == std::to_string(constants::success))
             std::cout << "Successfully subscribed to " << topic << '\n';
         else
@@ -204,12 +180,12 @@ namespace client
 
     void Client::publish(const std::string& topic, const std::string& message)
     {
-        sendMsg(std::to_string(constants::pub_signal));
-        sendMsg(topic);
-        sendMsg(message);
+        sendMsg(socket_, std::to_string(constants::pub_signal));
+        sendMsg(socket_, topic);
+        sendMsg(socket_, message);
 
         std::string response;
-        recvMsg(response);
+        recvMsg(socket_, response);
         if (response == std::to_string(constants::success))
             std::cout << "Successfully published message.\n";
         else
@@ -218,7 +194,7 @@ namespace client
 
     void Client::pong()
     {
-        sendMsg(std::to_string(constants::pong));
+        sendMsg(socket_, std::to_string(constants::pong));
     }
 
     void Client::close()

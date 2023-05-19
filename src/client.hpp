@@ -8,6 +8,7 @@
 // Package
 #include "socket.hpp"
 #include "constants.hpp"
+#include "node.hpp"
 
 // If on Windows
 #ifdef _PLATFORM_WINDOWS
@@ -124,13 +125,9 @@ namespace client
  * \brief The Client class has functions to manipulate a client
  * in the programme.
 */
-class Client {
+class Client: public node::Node {
     public:
         Client(const std::string& host, uint port);
-
-        void sendMsg(const std::string& message);
-
-        void recvMsg(std::string& message);
 
         void subscribe(const std::string& topic);
 
