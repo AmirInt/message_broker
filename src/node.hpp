@@ -11,7 +11,8 @@
 namespace node
 {
 
-class Node {
+class Node
+{
     protected:
         void sendMsg(int socket_fd, const std::string& message);
         

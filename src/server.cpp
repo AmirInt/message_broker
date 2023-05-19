@@ -210,25 +210,9 @@ void Server::distributePayload(const Payload& payload)
         subscribing_clients_locks_[payload.first].lock();
         for (const auto& subscribing_client : subscribing_clients_[payload.first]) {
             try {
-                static const std::string spaces{ "          " };
-                // Send the initialiser
-                std::string init{ std::to_string(constants::msg_signal) };
-                std::string init_size{ std::to_string(init.length()) };
-                init_size += spaces.substr(0, constants::default_size - init_size.size());
-                socket_interface::sendOnSocket(subscribing_client, init_size);
-                socket_interface::sendOnSocket(subscribing_client, init);
-                
-                // First, send the topic
-                std::string topic_size{ std::to_string(payload.first.size()) };
-                topic_size += spaces.substr(0, constants::default_size - topic_size.size());
-                socket_interface::sendOnSocket(subscribing_client, topic_size);
-                socket_interface::sendOnSocket(subscribing_client, payload.first);
-
-                // Then, send the message itself
-                std::string message_size{ std::to_string(payload.second.size()) };
-                message_size += spaces.substr(0, constants::default_size - message_size.size());
-                socket_interface::sendOnSocket(subscribing_client, message_size);
-                socket_interface::sendOnSocket(subscribing_client, payload.second);
+                sendMsg(subscribing_client, std::to_string(constants::msg_signal)); // Message signal
+                sendMsg(subscribing_client, payload.first); // Topic
+                sendMsg(subscribing_client, payload.second); // Message
             } catch (std::runtime_error&) {}
         }
     } catch (std::out_of_range&) {}
@@ -236,7 +220,24 @@ void Server::distributePayload(const Payload& payload)
 
 void Server::handleClient(int socket_fd)
 {
-    
+    std::string incoming_msg;
+    while (true) {
+        recvMsg(socket_fd, incoming_msg);
+        if (std::stoi(incoming_msg) == constants::sub_signal) {// If the client wants to subscribe on something
+            recvMsg(socket_fd, incoming_msg); // Get the topic
+            try { // Put this client
+                subscribing_clients_locks_[incoming_msg].lock();
+                subscribing_clients_[incoming_msg].insert(socket_fd);
+                subscribing_clients_locks_[incoming_msg].unlock();
+            } catch (std::out_of_range&) { // If the requested topic doesn't exist, create it
+                subscribing_clients_locks_.emplace(incoming_msg, std::mutex());
+                subscribing_clients_.emplace(incoming_msg, std::set<SocketFd>());
+                subscribing_clients_locks_[incoming_msg].lock();
+                subscribing_clients_[incoming_msg].insert(socket_fd);
+                subscribing_clients_locks_[incoming_msg].unlock();
+            }
+        }
+    }
 }
 
 void Server::insertIntoMainTunnel(const Payload& payload)

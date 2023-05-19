@@ -125,7 +125,8 @@ namespace client
  * \brief The Client class has functions to manipulate a client
  * in the programme.
 */
-class Client: public node::Node {
+class Client: public node::Node
+{
     public:
         Client(const std::string& host, uint port);
 

@@ -13,6 +13,7 @@
 // Package
 #include "socket.hpp"
 #include "constants.hpp"
+#include "node.hpp"
 
 // If on Windows
 #ifdef _PLATFORM_WINDOWS
@@ -216,7 +217,7 @@ using ClientID = std::size_t;
 using SocketFd = int;
 
 
-class Server
+class Server: node::Node
 {
     public:
         Server(uint port, int n_sockets_to_queue = 0);
