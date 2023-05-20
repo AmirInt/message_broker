@@ -246,6 +246,7 @@ void Server::handleClient(int socket_fd)
             Payload payload{ topic, message };
             insertIntoMainTunnel(payload);
         }
+        sendMsg(socket_fd, std::to_string(constants::success));
     }
 }
 
