@@ -194,6 +194,7 @@ void Server::welcomeCilents()
 
 void Server::watchMainTunnel()
 {
+    // TODO: Change implementations like https://stackoverflow.com/questions/12805041/c-equivalent-to-javas-blockingqueue
     try {
         while (true) {
             if (not main_tunnel_.second.empty()) {
@@ -223,9 +224,9 @@ void Server::handleClient(int socket_fd)
     std::string incoming_msg;
     while (true) {
         recvMsg(socket_fd, incoming_msg);
-        if (std::stoi(incoming_msg) == constants::sub_signal) {// If the client wants to subscribe on something
+        if (std::stoi(incoming_msg) == constants::sub_signal) { // If the client wants to subscribe on something
             recvMsg(socket_fd, incoming_msg); // Get the topic
-            try { // Put this client
+            try { // Put this client among the subscribers of the given topic
                 subscribing_clients_locks_[incoming_msg].lock();
                 subscribing_clients_[incoming_msg].insert(socket_fd);
                 subscribing_clients_locks_[incoming_msg].unlock();
@@ -236,6 +237,14 @@ void Server::handleClient(int socket_fd)
                 subscribing_clients_[incoming_msg].insert(socket_fd);
                 subscribing_clients_locks_[incoming_msg].unlock();
             }
+        }
+        else if (std::stoi(incoming_msg) == constants::pub_signal) { // If they want to publish on something
+            Topic topic;
+            Message message;
+            recvMsg(socket_fd, topic);
+            recvMsg(socket_fd, message);
+            Payload payload{ topic, message };
+            insertIntoMainTunnel(payload);
         }
     }
 }
