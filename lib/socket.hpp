@@ -103,7 +103,7 @@ class Socket {
         __socket_type transport_protocol_;
         uint port_;
         int socket_fd_{};
-        struct sockaddr_in address_;
+        sockaddr_in address_;
         int opt_{ 1 };
         int addrlen_{ sizeof(address_) };
 };
