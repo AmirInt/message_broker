@@ -139,6 +139,8 @@ class Client: public node::Node
         void close();
 
     private:
+        void handleIncomings();
+
         socket_interface::Socket socket_;
 
         std::thread subscriptions_;

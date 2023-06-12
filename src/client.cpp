@@ -202,6 +202,25 @@ namespace client
         socket_.closeSocket();
     }
 
+    void Client::handleIncomings()
+    {
+        std::string incoming_message;
+        while (true) {
+            recvMsg(socket_, incoming_message);
+            if (incoming_message == std::to_string(constants::ping))
+                pong();
+            else if (incoming_message == std::to_string(constants::msg_signal)) {
+                std::string topic;
+                std::string message;
+                recvMsg(socket_, topic);
+                recvMsg(socket_, message);
+                std::cout << "New incoming message:\n";
+                std::cout << "Topic: " << topic << '\n';
+                std::cout << "Message: " << message << '\n';
+            }
+        }
+    }
+
 }
 
 #endif // _PLATFORM_LINUX
