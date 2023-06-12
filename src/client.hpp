@@ -143,7 +143,7 @@ class Client: public node::Node
 
         socket_interface::Socket socket_;
 
-        std::thread subscriptions_;
+        std::thread incomings_handler_;
 
 }; // class Client
 
