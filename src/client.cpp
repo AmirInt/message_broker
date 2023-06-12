@@ -215,6 +215,7 @@ namespace client
                 std::string message;
                 recvMsg(socket_, topic);
                 recvMsg(socket_, message);
+                std::cout << "---------------------------\n";
                 std::cout << "New incoming message:\n";
                 std::cout << "Topic: " << topic << '\n';
                 std::cout << "Message: " << message << '\n';
