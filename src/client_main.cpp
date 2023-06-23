@@ -1,4 +1,9 @@
+// C++
+#include <iostream>
+
+// Package
 #include "client.hpp"
+
 
 void display_usage()
 {
@@ -13,5 +18,5 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    auto client = client::Client(argv[0], std::stoi(argv[1]));
+    auto client{ client::Client(argv[0], std::stoi(argv[1])) };
 }

@@ -155,7 +155,8 @@ int main(int argc, char *argv[]) {
 namespace client
 {
     Client::Client(const std::string& host, uint port)
-        : socket_(AF_INET, SOCK_STREAM, port)
+        : Node()
+        , socket_(AF_INET, SOCK_STREAM, port)
         , incomings_handler_(handleIncomings)
     {
         socket_.connectSocket(host);

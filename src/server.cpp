@@ -167,7 +167,8 @@ namespace server
 {
 
 Server::Server(uint port, int n_sockets_to_queue)
-    : main_socket_(AF_INET, SOCK_STREAM, port)
+    : Node()
+    , main_socket_(AF_INET, SOCK_STREAM, port)
     , main_tunnel_guardian_(std::thread(
         watchMainTunnel
     ))

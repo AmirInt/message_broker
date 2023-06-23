@@ -9,6 +9,7 @@
 #include <thread>
 #include <utility> // For std::pair
 #include <set>
+#include <mutex>
 
 // Package
 #include "socket.hpp"
